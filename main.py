@@ -1,9 +1,18 @@
 from fastapi import FastAPI, HTTPException, status, Depends
 from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Text 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from google import genai 
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Gimini AI setup 
+GIMINI_API_KEY = os.getenv("GIMINI_API_KEY")
+ai_client = genai.Client(api_key=GIMINI_API_KEY)
 
 # Database Setup 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./bookmarks.db"
@@ -17,14 +26,16 @@ class BookmarkDB(Base):
     url = Column(String, index=True)
     title = Column(String)
     description = Column(String, nullable=True)
+    ai_summary = Column(Text, nullable=True)
 Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
     title = "Bookmark API",
     description = "First REST API - Phase 1",
-    version= "0.1.0",
+    version= "0.2.0",
 )
+
 # what a bookmark looks like using pydantic
 class BookmarkCreate(BaseModel):
     url: HttpUrl
@@ -33,6 +44,7 @@ class BookmarkCreate(BaseModel):
 
 class BookmarkResponse(BookmarkCreate):
     id: int
+    ai_summary: Optional[str] = None 
     class Config:
         from_attributes = True
 
@@ -54,10 +66,26 @@ def health():
 # The CRUD endpoints
 @app.post("/bookmarks", response_model=BookmarkResponse, status_code=status.HTTP_201_CREATED)
 def create_bookmark(bookmark: BookmarkCreate, db: Session = Depends(get_db)):
+    try:
+        prompt =( 
+            f"Generate a single, concice one-sentence summary for a bookmark "
+            f"with the title '{bookmark.title}' and URL '{bookmark.url}'."
+            f"Return only the summary, no extra text."
+        )
+        ai_response = ai_client.models.generate_content(
+            model = "gemini-3.8-flash",
+            contents = prompt,
+        )
+        ai_summary = ai_response.text.strip() if ai_response.text else None
+    except Exception as e:
+        print(f"Gimini api error: {e}")
+        ai_summary = None
+
     new_bookmark = BookmarkDB(
         url= str(bookmark.url),
         title= bookmark.title,
-        description= bookmark.description
+        description= bookmark.description,
+        ai_summary= ai_summary
     )
     db.add(new_bookmark)
     db.commit()
