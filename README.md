@@ -14,7 +14,6 @@ When you save a new bookmark, the API automatically sends the URL and title to G
 
 ## 📸 Screenshots
 ![Swagger UI](swagger-screenshot.png)
-*(Optional: Add `![AI Summary](ai-summary-screenshot.png)` here too)*
 
 ## ⚙️ How to Run Locally
 
