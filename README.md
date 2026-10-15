@@ -1,17 +1,24 @@
-# Bookmark Manager API
-A REST API for saving and organizing web bookmarks. Built with FastAPI as part of my AI Engineering journey (Phase 1).
+# 🧠 AI Bookmark Manager API
 
-## Run locally
-1. Activate the virtual environment: `venv\Scripts\activate`
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run the server: `uvicorn main:app --reload`
+A REST API for saving and organizing web bookmarks, automatically enhanced with AI-generated summaries. Built with FastAPI, SQLite, and Google Gemini.
 
-## Endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Welcome message |
-| GET | `/health` | Service health check |
-| POST | `/bookmarks` | *(Coming soon)* |
-| GET | `/bookmarks` | *(Coming soon)* |
-| GET | `/bookmarks/{id}` | *(Coming soon)* |
-| DELETE | `/bookmarks/{id}` | *(Coming soon)* |
+## 🚀 The AI Feature
+When you save a new bookmark, the API automatically sends the URL and title to Google's Gemini LLM. The AI reads the information and generates a one-sentence summary, which is saved into the database alongside the bookmark. 
+
+## 🛠️ Tech Stack
+- **Framework:** FastAPI (Python)
+- **Database:** SQLite + SQLAlchemy ORM
+- **Data Validation:** Pydantic
+- **AI Integration:** Google Gemini API (`google-genai`)
+- **Environment Management:** `python-dotenv`
+
+## 📸 Screenshots
+![Swagger UI](swagger-screenshot.png)
+*(Optional: Add `![AI Summary](ai-summary-screenshot.png)` here too)*
+
+## ⚙️ How to Run Locally
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/sayanbiswas-git/Bookmark-API.git
+   cd Bookmark-API
